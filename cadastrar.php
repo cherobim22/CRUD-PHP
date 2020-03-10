@@ -1,9 +1,12 @@
 <?php
-require_once('src/utils/ConnectionFactory.php');
-    $user = $_REQUEST['user'];
-
+    
+    require_once('src/utils/ConnectionFactory.php');    
+    
+        $user = $_REQUEST['user'];
 
         $con = ConnectionFactory::getConnection();
+
+        $hs_password = password_hash($user['senha'], PASSWORD_DEFAULT);
 
 
 
@@ -15,7 +18,7 @@ require_once('src/utils/ConnectionFactory.php');
     $stmt->bindParam(':rg', $user['rg']);
     $stmt->bindParam(':endereco', $user['endereco']);
     $stmt->bindParam(':email', $user['email']);
-    $stmt->bindParam(':senha', $user['senha']);
+    $stmt->bindParam(':senha', $hs_password);
     $stmt->bindParam(':data_nascimento', $user['data_nascimento']);
 
     $stmt->execute();
