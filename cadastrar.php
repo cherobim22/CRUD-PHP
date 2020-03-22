@@ -1,16 +1,13 @@
 <?php
-    
-    require_once('src/utils/ConnectionFactory.php');    
-    
-        $user = $_REQUEST['user'];
+    require_once('src/utils/ConnectionFactory.php');
 
-        $con = ConnectionFactory::getConnection();
+    $con = ConnectionFactory::getConnection();
 
-        $hs_password = password_hash($user['senha'], PASSWORD_DEFAULT);
+    $user = $_REQUEST['user'];
 
+    $hashed_password = password_hash($user['password'], PASSWORD_DEFAULT);
 
-
-    $stmt = $con->prepare("INSERT INTO users(nome, cpf, rg, endereco, email, senha, data_nascimento) 
+    $stmt = $con->prepare("INSERT INTO users_login(nome, cpf, rg, endereco, email, senha, data_nascimento) 
                            VALUES (:nome, :cpf, :rg, :endereco, :email, :senha, :data_nascimento)");
     
     $stmt->bindParam(':nome', $user['nome_completo']);
@@ -18,7 +15,7 @@
     $stmt->bindParam(':rg', $user['rg']);
     $stmt->bindParam(':endereco', $user['endereco']);
     $stmt->bindParam(':email', $user['email']);
-    $stmt->bindParam(':senha', $hs_password);
+    $stmt->bindParam(':senha', $hashed_password);
     $stmt->bindParam(':data_nascimento', $user['data_nascimento']);
 
     $stmt->execute();

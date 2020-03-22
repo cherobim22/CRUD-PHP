@@ -1,36 +1,44 @@
 <?php
-    
-   require_once('src/utils/ConnectionFactory.php');
+    session_start();
+
+    if(! $_SESSION['logado']) {
+        $_SESSION['flash']['error'] = "Você precisa estar logado para executar essa ação.";
+        header("Location: sign_in.php");
+        exit(0);
+    }
+    if(isset($_SESSION['flash'])) {
+        $error = $_SESSION['flash']['error'];
+        $message = $_SESSION['flash'];
+        unset($_SESSION['flash']);       
+    }
+
+    require_once('src/utils/ConnectionFactory.php');
+
+    $con = ConnectionFactory::getConnection();
 
     $id = $_GET['id'];
 
-    $con = ConnectionFactory::getConnection();
-   
-
-    $stmt = $con->prepare("SELECT * FROM users WHERE id=:id");
-    $stmt->bindParam(':id', $id);
+    $stmt = $con->prepare("SELECT * FROM users_login WHERE id=:id");
+    $stmt->bindParam(":id", $id);
     $stmt->execute();
 
     $row = $stmt->fetch(PDO::FETCH_OBJ);
-    print_r($row);
-   
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-    <link rel="stylesheet" href="css/bootstrap-reboot.css" />
+    <title>Formulário de Edição</title>
+    <link rel="stylesheet" href="css/bootstrap-reboot.css"/>
     <link rel="stylesheet" href="css/bootstrap-grid.css" />
     <link rel="stylesheet" href="css/bootstrap.css" />
     <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="#">Navbar</a>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="formulario.php">Formulário</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -38,29 +46,10 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
-                <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Link</a>
-            </li>
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Dropdown
-                </a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <a class="dropdown-item" href="#">Action</a>
-                <a class="dropdown-item" href="#">Another action</a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="#">Something else here</a>
-                </div>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+                <a class="nav-link" href="index.php">Dados <span class="sr-only">(current)</span></a>
             </li>
             </ul>
-            <form class="form-inline my-2 my-lg-0">
-            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            <a href="/sign_out.php" class="btn btn-warning">Sair</a>
             </form>
         </div>
     </nav>
@@ -68,24 +57,26 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12 mt-4">
-                <h1>Formulário de Cadastro</h1>
+                <?php if($error) : ?>
+                    <p class="alert alert-danger"><?= $error ?></p>
+                <?php endif ?>
+                <?php if($message) : ?>
+                    <p class="alert alert-sucess"><?= $message ?></p>
+                <?php endif ?>
+                <h1>Formulário de Edição</h1>
                 <hr />
             </div>
+        
 
-<form action="atualizar.php" method="POST">
+            <form action="atualizar.php" method="POST">
+
                 <input type="hidden" name="user[id]" value="<?= $row->id ?>">
+
                 <div class="form-row">
                     <div class="form-group col-md-6">
-                        <label for="inputEmail3" class="col-sm-6 col-form-label">Email:</label>
+                        <label for="email" class="col-sm-6 col-form-label">Email:</label>
                         <div class="col-sm-12">
-                            <input type="email" class="form-control" id="inputEmail3" name="user[email]" value="<?= $row->email ?>">
-                        </div>
-                    </div>
-
-                    <div class="form-group col-md-6">
-                        <label for="inputPassword3" class="col-sm-6 col-form-label">Password:</label>
-                        <div class="col-sm-12">
-                        <input type="password" class="form-control" id="inputPassword3" name="user[senha]" value="<?= $row->senha ?>">
+                            <input type="email" class="form-control" id="email" name="user[email]" value="<?= $row->email ?>">
                         </div>
                     </div>
 
@@ -123,16 +114,19 @@
                             <input type="text" class="form-control" id="endereco" name="user[endereco]" value="<?= $row->endereco ?>">
                         </div>
                     </div>
-
+                    
                     <div class="form-group col-md-12">
                         <div class="col-sm-10">
-                        <button type="submit" class="btn btn-primary">Atualizar</button>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
                         </div>
                     </div>
                     
                     
                 </div>
-    </div>      
+
+            </form>
+        
+        </div>      
     </div>
     
 

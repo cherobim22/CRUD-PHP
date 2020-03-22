@@ -1,8 +1,22 @@
 <?php
-   require_once('src/utils/ConnectionFactory.php');
-   $con = ConnectionFactory::getConnection();
-   
-    $stmt = $con->prepare("SELECT * FROM users");
+    session_start();
+
+    if(! $_SESSION['logado']) {
+        $_SESSION['flash']['error'] = "Você precisa estar logado para executar essa ação.";
+        header("Location: sign_in.php");
+        exit(0);
+    }
+    if(isset($_SESSION['flash'])) {
+        $error = $_SESSION['flash']['error'];
+        $message = $_SESSION['flash'];
+        unset($_SESSION['flash']);       
+    }
+
+    require_once('src/utils/ConnectionFactory.php');
+
+    $con = ConnectionFactory::getConnection();
+
+    $stmt = $con->prepare("SELECT * FROM users_login");
     $stmt->execute();
 ?>
 
@@ -12,45 +26,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>Formulário</title>
     <link rel="stylesheet" href="css/bootstrap-reboot.css" />
     <link rel="stylesheet" href="css/bootstrap-grid.css" />
     <link rel="stylesheet" href="css/bootstrap.css" />
     <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="#">Navbar</a>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="formulario.php">Cadastro - Logado</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
-                <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Link</a>
-            </li>
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Dropdown
-                </a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <a class="dropdown-item" href="#">Action</a>
-                <a class="dropdown-item" href="#">Another action</a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="#">Something else here</a>
-                </div>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+                <a class="nav-link" href="index.php">Listar <span class="sr-only">(current)</span></a>
             </li>
             </ul>
-            <form class="form-inline my-2 my-lg-0">
-            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            <a href="/sign_out.php" class="btn btn-warning">Sair</a>            
             </form>
         </div>
     </nav>
@@ -58,9 +52,14 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12 mt-4">
+                <?php if(isset($error)) : ?>
+                    <p class="alert alert-danger"><?= $error ?></p>
+                <?php endif ?>
+                <?php if(isset($message)) : ?>
+                    <p class="alert alert-sucess"><?= $message ?></p>
+                <?php endif ?>
                 <h1>
-                    Cadastro
-
+                    Cadastros
                     <a href="formulario.php" class="btn btn-success float-right">Novo Usuário</a>
                 </h1>
                 <hr />
@@ -89,18 +88,12 @@
                             <td><?= $row->data_nascimento ?></td>
                             <td>
                                 <a href="editar.php?id=<?= $row->id ?>" class="btn btn-small btn-warning">Editar</a>
-                                 <a href="excluir.php?id=<?= $row->id ?>" class="btn btn-small btn-danger" onclick="return confirm('Deseja realmente excluir')">Excluir</a>
-                            </td>                   
+                                <a href="deletar.php?id=<?= $row->id ?>" class="btn btn-small btn-danger" onclick="return confirm('Deseja Realmente Deletar?')">Deletar</a>
+                            </td>              
                         </tr>
-
                     <?php endwhile ?>
-
                 </table>
-
             </div>
-
-        
-        
         </div>      
     </div>
     

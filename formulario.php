@@ -1,10 +1,30 @@
+<?php 
+    session_start();
+    if(! $_SESSION['logado']) {
+        $_SESSION['flash']['error'] = "Você precisa estar logado para executar essa ação.";
+        header("Location: sign_in.php");
+        exit(0);
+    }
+    if(isset($_SESSION['flash'])) {
+        $error = $_SESSION['flash']['error'];
+        $message = $_SESSION['flash'];
+        unset($_SESSION['flash']);       
+    }
+
+    require_once('src/utils/ConnectionFactory.php');
+
+    $con = ConnectionFactory::getConnection();
+
+    $stmt = $con->prepare("SELECT * FROM users_login");
+    $stmt->execute();
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>Formulário de Cadastro</title>
     <link rel="stylesheet" href="css/bootstrap-reboot.css" />
     <link rel="stylesheet" href="css/bootstrap-grid.css" />
     <link rel="stylesheet" href="css/bootstrap.css" />
@@ -12,7 +32,7 @@
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="#">Navbar</a>
+        <a class="navbar-brand" href="formulario.php">Formulário</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -20,29 +40,14 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
-                <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Link</a>
-            </li>
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Dropdown
-                </a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <a class="dropdown-item" href="#">Action</a>
-                <a class="dropdown-item" href="#">Another action</a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="#">Something else here</a>
-                </div>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+                <a class="nav-link" href="index.php">Listar <span class="sr-only">(current)</span></a>
             </li>
             </ul>
-            <form class="form-inline my-2 my-lg-0">
-            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            <?php if($_SESSION['logado']) : ?>
+                <a href="/sign_out.php" class="btn btn-warning">Sair</a>
+                <?php else : ?>
+                <a href="/sign_in.php" class="btn btn-success">Logar</a>
+            <?php endif ?>
             </form>
         </div>
     </nav>
@@ -58,51 +63,51 @@
             <form action="cadastrar.php" method="POST">
                 <div class="form-row">
                     <div class="form-group col-md-6">
-                        <label for="inputEmail3" class="col-sm-6 col-form-label">Email:</label>
+                        <label for="email" class="col-sm-6 col-form-label">Email:</label>
                         <div class="col-sm-12">
-                            <input type="email" class="form-control" id="inputEmail3" name="user[email]" value="manfe01@gmail.com">
+                            <input type="email" class="form-control" id="email" name="user[email]" value="xxxxxxx@xxxxxx.com">
                         </div>
                     </div>
 
                     <div class="form-group col-md-6">
-                        <label for="inputPassword3" class="col-sm-6 col-form-label">Password:</label>
+                        <label for="password" class="col-sm-6 col-form-label">Password:</label>
                         <div class="col-sm-12">
-                        <input type="password" class="form-control" id="inputPassword3" name="user[senha]" value="123456">
+                        <input type="password" class="form-control" id="password" name="user[password]" value="">
                         </div>
                     </div>
 
                     <div class="form-group col-md-6">
                         <label for="nome" class="col-sm-6 col-form-label">Nome Completo:</label>
                         <div class="col-sm-12">
-                            <input type="text" class="form-control" id="nome" name="user[nome_completo]"  value="Mauricio N. Ferreira">
+                            <input type="text" class="form-control" id="nome" name="user[nome_completo]"  value="">
                         </div>
                     </div>
 
                     <div class="form-group col-md-6">
                         <label for="cpf" class="col-sm-6 col-form-label">CPF:</label>
                         <div class="col-sm-12">
-                            <input type="text" class="form-control" id="cpf" name="user[cpf]" value="010.012.123-90">
+                            <input type="text" class="form-control" id="cpf" name="user[cpf]" value="">
                         </div>
                     </div>
 
                     <div class="form-group col-md-6">
                         <label for="rg" class="col-sm-6 col-form-label">RG:</label>
                         <div class="col-sm-12">
-                            <input type="text" class="form-control" id="rg" name="user[rg]"  value="3.123.123">
+                            <input type="text" class="form-control" id="rg" name="user[rg]"  value="">
                         </div>
                     </div>
 
                     <div class="form-group col-md-6">
                         <label for="data_nascimento" class="col-sm-6 col-form-label">Data Nascimento:</label>
                         <div class="col-sm-12">
-                            <input type="date" class="form-control" id="data_nascimento" name="user[data_nascimento]"  value="1989-12-15">
+                            <input type="date" class="form-control" id="data_nascimento" name="user[data_nascimento]"  value="">
                         </div>
                     </div>
 
                     <div class="form-group col-md-12">
                         <label for="endereco" class="col-sm-12 col-form-label">Endereço:</label>
                         <div class="col-sm-12">
-                            <input type="text" class="form-control" id="endereco" name="user[endereco]" value="Bairro SSSSS. Videira - SC">
+                            <input type="text" class="form-control" id="endereco" name="user[endereco]" value="">
                         </div>
                     </div>
                     

@@ -1,41 +1,31 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <p>User Login</p>
-        <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-        <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-        <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-        <link rel="stylesheet" type="text/css" href="css/style.css">
-        <!------ Include the above in your HEAD tag ---------->
-    </head>
+<?php 
+    session_start();
 
-    <body>
-        
-        
-        <div class="wrapper fadeInDown">
-          <div id="formContent">
-            <!-- Tabs Titles -->
-        
-            <!-- Icon -->
-            <div class="fadeIn first">
-              <img src="img/user.svg" id="icon" alt="User Icon" />
-            </div>
-        
-            <!-- Login Form -->
-            <form>
-              <input type="text" id="login" class="fadeIn second" name="login" placeholder="login">
-              <input type="text" id="password" class="fadeIn third" name="login" placeholder="password">
-              <input type="submit" class="fadeIn fourth" value="Log In">
-            </form>
-        
-            <!-- Remind Passowrd -->
-            <div id="formFooter">
-              <a class="underlineHover" href="#">Forgot Password?</a>
-            </div>
-        
-          </div>
-        </div>
-    </body>
+    require_once('src/utils/ConnectionFactory.php');
 
+    $con = ConnectionFactory::getConnection();
 
-</html>
+    $email = $_REQUEST['user']['email'];
+    $senha = $_REQUEST['user']['password'];
+
+    $stmt = $con->prepare("SELECT * FROM users_login WHERE email = :email");
+    $stmt->bindParam(':email', $email);
+    $stmt->execute();
+    
+    $user = $stmt->fetch(PDO::FETCH_OBJ);
+
+    if($user) {
+        if(password_verify($senha, $user->senha)) {
+            $_SESSION['user'] = $email;
+            $_SESSION['logado']['message'] = "Logado com sucesso";
+            header("Location: index.php");
+        } else {
+            $_SESSION['flash']['error'] = "Dados Incorretos, tente novamente (senha)";
+            header("Location: sign_in.php");
+        }
+
+    } else {
+        $_SESSION['flash']['error'] = "Dados Incorretos, tente novamente (email)";
+        header("Location: sign_in.php");
+    }
+?>
