@@ -2,15 +2,15 @@
 
  CRUD using MYSQL with PHP PDO
  
- Tests:
+ ## Tests:
  
-   Go to the src/utils folder and configure your database options
-   Start server - php -S localhost:8000
+  - Go to the src/utils folder and configure your database options
+  - Start server - php -S localhost:8000
    
- Observation:
+ ## Observation:
  
-   You will need a user registered in the database to access the system.
+  - You will need a user registered in the database to access the system.
  
  
- Bootstrap link: https://bootsnipp.com/snippets/dldxB
- https://www.php.net/manual/pt_BR/book.pdo.php 
+- Bootstrap link: https://bootsnipp.com/snippets/dldxB
+- https://www.php.net/manual/pt_BR/book.pdo.php 
