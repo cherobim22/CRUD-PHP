@@ -3,7 +3,7 @@
  CRUD using MYSQL with PHP PDO
  
  ## Tests:
- 
+  - Clone or Download
   - Go to the src/utils folder and configure your database options
   - Start server - php -S localhost:8000
    
